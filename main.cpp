@@ -10,7 +10,7 @@
 #include <math.h>
 
 
-// Strategy: define the 3 coordinates of a point based on the same (but randon) normal distribution so that in a given radius, 
+// Strategy: define the 3 coordinates of a point based on the same (but random) normal distribution so that in a given radius, 
 //  every direction is equally possible (uniformly distributed). 
 //  Normalize the point on B(0, 1) and multiply it by a random distance following the normal distribution defined by R_mean and R_dev. 
 //  Translate the point by (x_c, y_c, z_c).
@@ -128,7 +128,7 @@ class PointCreator
         std::ofstream outputFile(fileName);
         for (int i = 0; i < (int)x.size(); i++)
         {
-            outputFile << "\n" << x[i] << " " << y[i] << " " << z[i];
+            outputFile << x[i] << ", " << y[i] << ", " << z[i] << std::endl;
         }
         outputFile.close();
     }
@@ -138,13 +138,13 @@ class PointCreator
 int main() 
 {
     // data file to be read
-    std::string fileName = "./input/input0.txt";
+    std::string fileName = "./input/input0.txt"; //THIS HERE NEEDS TO CHANGE, INCLUDING THE FILENAME FOR PERFORMANCE BENCHMARKING
 
     std::fstream inStream;
     inStream.open(fileName, std::ios::in);
     if(inStream.is_open()) 
     {
-        std::string outFilename = "./res/res0.txt";
+        std::string outFilename = "./res/res0.csv";
         PointCreator p = PointCreator(inStream, outFilename);
     }
     else

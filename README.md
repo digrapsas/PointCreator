@@ -1,4 +1,4 @@
-# PointCreator# PointCreator
+# PointCreator
 
 A multithreaded C++ program for generating random points in 3D around a user-defined center.
 
@@ -18,27 +18,24 @@ The radial distance follows a normal distribution:
 * `R_mean` defines the mean distance from the center;
 * `R_dev` defines the standard deviation.
 
-The direction is uniformly distributed over the surface of a sphere, ensuring that there is no preferred direction in 3D space.
-
-This makes it possible to generate both spherical shells and volumetric point clouds depending on the selected radial distribution.
-
-### Special cases
-
-* `R_dev = 0`: all points lie on the surface of a sphere with radius `R_mean`;
-* `R_mean = 0`: points are clustered around the center;
-* `R_mean = 0` and `R_dev = 0` simultaneously is not allowed.
+The direction is uniformly distributed over the surface of a sphere, ensuring that there is no preferred direction in 3D space. This makes it possible to generate both spherical shells and volumetric point clouds depending on the selected radial distribution.
 
 ## Features
 
 * Random 3D point generation
-* Normally distributed radial distance
-* Uniformly distributed 3D direction
+* Uniform distribution of the points on the sphere of `R_mean` when `R_dev = 0`.
 * Configurable center point
 * Configurable number of points
 * Multithreaded point generation using the C++ Standard Library
 * Execution-time measurement of the generation step
 * Text output compatible with the specification
 * Performance benchmarking and scalability analysis
+
+### Edge cases
+
+* `R_dev = 0`: points uniformly distributed on the surface of a sphere with radius `R_mean`;
+* `R_mean = 0`: points are clustered around the center;
+* `R_mean = 0` and `R_dev = 0` simultaneously is not allowed.
 
 ## Input
 
@@ -50,39 +47,40 @@ sphere_points <number_of_threads> <number_of_points> <x_c> <y_c> <z_c> <R_mean> 
 
 Where:
 
-| Parameter           | Description                                 |
-| ------------------- | ------------------------------------------- |
-| `number_of_threads` | Number of threads used for point generation |
-| `number_of_points`  | Number of points to generate                |
-| `(x_c,y_c,z_c)`     | (x,y,z) coordinates of the center           |
-| `R_mean`            | Mean radial distance                        |
-| `R_dev`             | Standard deviation of the radial distance   |
+| Parameter           | Description                                  |
+| ------------------- | -------------------------------------------- |
+| `number_of_threads` | Number of threads used for point generation  |
+| `number_of_points`  | Number of points to generate                 |
+| `(x_c, y_c, z_c)`   | (x, y, z) coordinates of the center          |
+| `R_mean`            | Mean radial distance                         |
+| `R_dev`             | Standard deviation of the radial distance    |
+| `out_file`          | Name of the text file containing the results |
 
 `R_mean` and `R_dev` cannot both be zero.
 
-## Example
+### Example
 
 Generate 1000 points uniformly distributed on a sphere of radius 4 centered at the origin, using a single thread:
 
 ```bash
-sphere_points 1 1000 0.0 0.0 0.0 4.0 0.0
+sphere_points 1 1000 0.0 0.0 0.0 4.0 0.0 ouf_file
 ```
 
 The generated points are written to:
 
 ```text
-points.txt
+out_file.txt
 ```
 
 using the following format:
 
 ```text
-<x_1> <y_1> <z_1>
-<x_2> <y_2> <z_2>
+<x_1>, <y_1>, <z_1>
+<x_2>, <y_2>, <z_2>
 ...
 ```
 
-Coordinates are separated by spaces.
+Coordinates are separated by commas.
 
 ## Point Generation
 
@@ -104,15 +102,7 @@ This design allows the computational workload to scale with the number of availa
 
 ## Performance
 
-The point-generation stage is timed independently from file output in order to measure the computational part of the program.
-
-Benchmarking is performed by keeping the problem size fixed and increasing the number of threads.
-
-The following metrics can be used to evaluate scalability:
-
-* **Execution time**
-* **Speedup**
-* **Parallel efficiency**
+The point-generation stage is timed independently from file output in order to measure the computational part of the program. Benchmarking is performed by keeping the problem size fixed and increasing the number of threads.
 
 For a given number of threads `N`, speedup is measured relative to the single-threaded execution:
 
@@ -121,11 +111,6 @@ Speedup(N) = T(1) / T(N)
 ```
 
 where `T(N)` is the point-generation execution time using `N` threads.
-
-The ideal speedup is linear:
-
-```text
-Speedup(N) = N
 ```
 
 ### Benchmark results
