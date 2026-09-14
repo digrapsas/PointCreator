@@ -23,7 +23,6 @@
 *.dll
 *.so.*
 
-
 # Fortran module files
 *.mod
 *.smod
@@ -38,6 +37,9 @@
 *.exe
 *.out
 *.app
+
+# Result files
+*.csv
 
 # Build directories
 build/

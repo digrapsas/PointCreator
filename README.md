@@ -39,13 +39,13 @@ The direction is uniformly distributed over the surface of a sphere, ensuring th
 
 ## Input
 
-The program takes the following parameters:
+The program reads the following parameters from an input text file:
 
 ```text
-sphere_points <number_of_threads> <number_of_points> <x_c> <y_c> <z_c> <R_mean> <R_dev>
+<number_of_threads> <number_of_points> <x_c> <y_c> <z_c> <R_mean> <R_dev>
 ```
 
-Where:
+where:
 
 | Parameter           | Description                                  |
 | ------------------- | -------------------------------------------- |
@@ -60,27 +60,19 @@ Where:
 
 ### Example
 
-Generate 1000 points uniformly distributed on a sphere of radius 4 centered at the origin, using a single thread:
-
-```bash
-sphere_points 1 1000 0.0 0.0 0.0 4.0 0.0 ouf_file
-```
-
-The generated points are written to:
+Let us suppose an input file named `exp.txt` containing the following line:
 
 ```text
-out_file.txt
+1 20000 0.0 0.0 0.0 4.0 0.4
 ```
 
-using the following format:
+the program creates 20000 points uniformly distributed on a sphere of radius 4 centered at the origin and standard deviation 0.4, using a single thread. The output is written in `res/exp.csv`, using the following format:
 
 ```text
 <x_1>, <y_1>, <z_1>
 <x_2>, <y_2>, <z_2>
 ...
 ```
-
-Coordinates are separated by commas.
 
 ## Point Generation
 

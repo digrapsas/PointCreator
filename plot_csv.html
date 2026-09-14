@@ -19,7 +19,9 @@
       const reader = new FileReader();
 
       reader.onload = function (e) {
-        const rows = e.target.result.split(/\r?\n/).filter(line => line.trim() !== "");
+        const rows = e.target.result
+          .split(/\r?\n/)
+          .filter(line => { const t = line.trim(); return t && !t.startsWith('#'); });
         const x = [];
         const y = [];
         const z = [];

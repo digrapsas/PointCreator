@@ -3,12 +3,12 @@
 #include <sstream> 
 #include <chrono>
 #include <thread>
-
+#include <string>
 #include <random>
 #include <vector>
+#include <map>
 
 #include <math.h>
-
 
 // Strategy: define the 3 coordinates of a point based on the same (but random) normal distribution so that in a given radius, 
 //  every direction is equally possible (uniformly distributed). 
@@ -23,7 +23,7 @@ void PointCreation(unsigned iStart, unsigned iEnd, double x_c, double y_c, doubl
                    std::vector<double> &x, std::vector<double> &y, std::vector<double> &z, double R_mean, double R_dev)
 {
     long seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed);
+    std::default_random_engine generator(seed + (long)(10*iStart)); // adding a different offset to the seed for each thread to avoid same random numbers in each thread
     std::normal_distribution<double> normal_coord(0.0, 0.1);
     std::normal_distribution<double> normal_distance(R_mean, R_dev);
 
@@ -51,14 +51,24 @@ class PointCreator
 {
   private:
     int nb_threads;
-    unsigned nb_points;
+    long unsigned nb_points;
     double x_c, y_c, z_c, R_mean, R_dev;
     std::vector<double> x, y, z;  // coordinates of points to be created
+
+    std::string number_of_threads = "number of threads",
+                number_of_points = "number of points",  
+                center_x_coordinate = "center x-coordinate",
+                center_y_coordinate = "center y-coordinate",
+                center_z_coordinate = "center z-coordinate",
+                radius_mean_value = "radius mean value",
+                standard_deviation = "standard deviation";
+
+    std::map<std::string, size_t> inputData; // to store input data read from file
 
   public:
     PointCreator() = delete;
 
-    PointCreator(std::fstream& inStream, const std::string &outFilename)
+    PointCreator(std::ifstream& inStream, const std::string &outFilename)
     {
         ReadData(inStream);
         CreatePoints();
@@ -67,27 +77,83 @@ class PointCreator
 
   private:
     /* Reads and stores data from input file */
-    void ReadData(std::fstream& inStream)
+    void ReadData(std::ifstream& inStream)
     {
+        inputData = {
+            {number_of_threads, false},
+            {number_of_points, false},
+            {center_x_coordinate, false},
+            {center_y_coordinate, false},
+            {center_z_coordinate, false},
+            {radius_mean_value, false},
+            {standard_deviation, false}
+        };
+
         std::string line;
-        getline(inStream, line);
-        
-        // reading values in line sequentially
-        std::istringstream iss(line);
-        iss >> nb_threads;
-        iss >> nb_points;
-        iss >> x_c;
-        iss >> y_c;
-        iss >> z_c;
-        iss >> R_mean;
-        iss >> R_dev;
-        inStream.close();
+        while (std::getline(inStream, line)) 
+        {
+            if (line.empty())
+                continue; // skip empty lines
+            else
+                if (line[0] == '#' || line[0] == '\n') 
+                    continue; // comment line, skip
+                else if (line[0] == ' ')                    
+                    throw std::runtime_error("Error: Input file contains a line starting with whitespace. Please check the input file format.");
+
+            size_t pos = line.find_first_of(":");
+            if (pos == std::string::npos)
+            {
+                throw std::runtime_error("Error: Input file contains a line without a colon.\nPlease check the input file format at line '" + line + "'.");
+            }
+            else
+            {
+                if (line[pos - 1] == ' ') 
+                    throw std::runtime_error("Error: Input file contains a line with a space before the colon.\nPlease check the input file format.");
+
+                std::string key = line.substr(0, pos);
+                bool validKey = (inputData.find(key) != inputData.end());
+                if (!validKey) 
+                    throw std::runtime_error("Error: Unrecognized key in input file: \'" + key + "\'.\nPlease check the input file format.");
+            
+                pos = pos + (line.substr(pos + 1)).find_first_not_of(" \t"); // +1 to skip ":"
+                if (pos == std::string::npos) 
+                {
+                    throw std::runtime_error("Error: Input file contains a line without a value after the colon for: \'" + key + "\'.\nPlease check the input file format.");
+                }
+                else if (inputData[key]) // check if key has already been found
+                {
+                    throw std::runtime_error("Error: Duplicate key in input file for: \'" + key + "\'.\nPlease check the input file format.");
+                }
+                else
+                {
+                    inputData[key] = true; // mark key as found
+                    line = line.substr(line.find_first_of(":") + 1); // get the value part of the line
+                }
+
+                if (key == number_of_threads)
+                    nb_threads = std::stoi(line);
+                else if (key == number_of_points)
+                    nb_points = std::stoul(line);
+                else if (key == center_x_coordinate)
+                    x_c = std::stod(line);
+                else if (key == center_y_coordinate)
+                    y_c = std::stod(line);
+                else if (key == center_z_coordinate)
+                    z_c = std::stod(line);
+                else if (key == radius_mean_value)
+                    R_mean = std::stod(line);
+                else if (key == standard_deviation)
+                    R_dev = std::stod(line);
+            }
+        }
+
+        // check if all inputs are given
+        for (const auto& pair : inputData) 
+            if (!pair.second)
+                throw std::runtime_error("Error: Missing input for key: \'" + pair.first + "\'.\nPlease check the input file format.");
 
         if (fabs(R_mean) < std::numeric_limits<double>::epsilon() && fabs(R_dev) < std::numeric_limits<double>::epsilon())
-        {
-            std::cout << "Warning: R_mean and R_dev seem both to be zero. ";
-            std::cout << "At least one of them should be non-zero to define a proper distribution." << std::endl;
-        }
+            throw std::runtime_error("Error: R_mean and R_dev seem both to be zero. \nAt least one of them should be non-zero to define a proper distribution.");
     }
 
 
@@ -106,9 +172,9 @@ class PointCreator
         std::vector<std::thread> threads(nb_threads);
         for (int i = 0; i < nb_threads; i++)
         {
-            unsigned iStart = i * nb_points / nb_threads;
+            long unsigned iStart = i * nb_points / nb_threads;
             // make sure last thread will treat all remaining points and not a (nb_points/nb_threads) slice
-            unsigned iEnd = (i != nb_threads - 1) ? (i + 1) * nb_points / nb_threads : nb_points;
+            long unsigned iEnd = (i != nb_threads - 1) ? (i + 1) * nb_points / nb_threads : nb_points;
             threads[i] = std::thread(PointCreation, iStart, iEnd, x_c, y_c, z_c, std::ref(x), std::ref(y), std::ref(z), R_mean, R_dev);
         }
         for (auto iter = threads.begin(); iter != threads.end(); iter++)
@@ -126,6 +192,18 @@ class PointCreator
     void WriteResult(const std::string &fileName)
     {
         std::ofstream outputFile(fileName);
+        outputFile << "# Simulation ran with the following parameters:" << std::endl;
+        outputFile << "#     " << number_of_threads << ": " << nb_threads << std::endl;
+        outputFile << "#     " << number_of_points << ": " << nb_points << std::endl;
+        outputFile << "#     " << center_x_coordinate << ": " << x_c << std::endl;
+        outputFile << "#     " << center_y_coordinate << ": " << y_c << std::endl;
+        outputFile << "#     " << center_z_coordinate << ": " << z_c << std::endl;
+        outputFile << "#     " << radius_mean_value << ": " << R_mean << std::endl;
+        outputFile << "#     " << standard_deviation << ": " << R_dev << std::endl;
+        outputFile << "# ---------------------------------------------------------" << std::endl;
+        outputFile << "# Resulting points (x, y, z) in CSV format:" << std::endl;
+        outputFile << "#     x, y, z" << std::endl << std::endl;
+
         for (int i = 0; i < (int)x.size(); i++)
         {
             outputFile << x[i] << ", " << y[i] << ", " << z[i] << std::endl;
@@ -135,17 +213,25 @@ class PointCreator
 };
 
 
-int main() 
+int main(int argc, char* argv[]) 
 {
-    // data file to be read
-    std::string fileName = "./input/input0.txt"; //THIS HERE NEEDS TO CHANGE, INCLUDING THE FILENAME FOR PERFORMANCE BENCHMARKING
 
-    std::fstream inStream;
-    inStream.open(fileName, std::ios::in);
-    if(inStream.is_open()) 
+    std::string filenames = (argc > 1) ? argv[1] : "default";
+    std::string inputFileName = "./input/" + filenames + ".txt";
+    
+    std::ifstream inStream(inputFileName);
+    if(!inStream.fail()) 
     {
-        std::string outFilename = "./res/res0.csv";
-        PointCreator p = PointCreator(inStream, outFilename);
+        std::string outFilename = "./res/" + filenames + ".csv";
+        try
+        {  
+            PointCreator p = PointCreator(inStream, outFilename);
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << e.what() << std::endl;
+            return 1;
+        }
     }
     else
     {
