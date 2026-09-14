@@ -39,34 +39,37 @@ The direction is uniformly distributed over the surface of a sphere, ensuring th
 
 ## Input
 
-The program reads the following parameters from an input text file:
+The program reads the parameters of the simulation from an input file, which should contain the following `keys` separated with a colon (`:`) from their arithmetic values:
 
-```text
-<number_of_threads> <number_of_points> <x_c> <y_c> <z_c> <R_mean> <R_dev>
-```
-
-where:
-
-| Parameter           | Description                                  |
-| ------------------- | -------------------------------------------- |
-| `number_of_threads` | Number of threads used for point generation  |
-| `number_of_points`  | Number of points to generate                 |
-| `(x_c, y_c, z_c)`   | (x, y, z) coordinates of the center          |
-| `R_mean`            | Mean radial distance                         |
-| `R_dev`             | Standard deviation of the radial distance    |
-| `out_file`          | Name of the text file containing the results |
+| Parameter             | Description                                  |
+| --------------------- | -------------------------------------------- |
+| `number of threads`   | Number of threads used for point generation  |
+| `number of points`    | Number of points to generate                 |
+| `center x-coordinate` | x coordinate of the center                   |
+| `center y-coordinate` | y coordinate of the center                   |
+| `center z-cooridnate` | z coordinate of the center                   |
+| `R_mean`              | Mean radial distance                         |
+| `R_dev`               | Standard deviation of the radial distance    |
 
 `R_mean` and `R_dev` cannot both be zero.
 
 ### Example
 
-Let us suppose an input file named `exp.txt` containing the following line:
+Let us suppose an input file named `default.txt` with the following content:
 
 ```text
-1 20000 0.0 0.0 0.0 4.0 0.4
+number of threads: 1 
+number of points:  10000 
+
+center x-coordinate: 0.0 
+center y-coordinate: 0.0 
+center z-coordinate: 0.0 
+
+radius mean value:  4.0 
+standard deviation: 0.4
 ```
 
-the program creates 20000 points uniformly distributed on a sphere of radius 4 centered at the origin and standard deviation 0.4, using a single thread. The output is written in `res/exp.csv`, using the following format:
+The program creates 10000 points uniformly distributed on a sphere of radius 4 centered at the origin and standard deviation 0.4, using a single thread. The output is written in `res/default.csv`, using the following format:
 
 ```text
 <x_1>, <y_1>, <z_1>
