@@ -25,7 +25,6 @@ The radial distance follows a normal distribution:
 * `R_dev` defines the standard deviation.
 
 The direction is uniformly distributed over the surface of a sphere, ensuring that there is no preferred direction in 3D space. This makes it possible to generate both spherical shells and volumetric point clouds depending on the selected radial distribution.
-
 ![Point cloud visualization](images/default.png)
 
 *Figure: Point cloud generated with the `input/default.txt` input file, visualized with the interactive viewer `images/plot_csv.html`.*
@@ -35,14 +34,12 @@ The direction is uniformly distributed over the surface of a sphere, ensuring th
 * `R_dev = 0`: points uniformly distributed on the surface of a sphere with radius `R_mean`
 * `R_mean = 0`: points are clustered around the center
 * `R_mean = 0` and `R_dev = 0` simultaneously is not allowed
-
 ![Point cloud visualization](images/no_std.png)
 
 *Figure: Spherical shell generated with the `input/no_std.txt` input file, visualized with the interactive viewer `images/plot_csv.html`.*
-
 ![Point cloud visualization](images/no_R.png)
 
-*Figure: Point cloud generated with the `input/no_R.txt` input file,, visualized with the interactive viewer `images/plot_csv.html`.*
+*Figure: Point cloud generated with the `input/no_R.txt` input file, visualized with the interactive viewer `images/plot_csv.html`.*
 
 ## Features
 
