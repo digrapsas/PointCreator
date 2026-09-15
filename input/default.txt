@@ -5,5 +5,5 @@ center x-coordinate: 0.0
 center y-coordinate: 0.0 
 center z-coordinate: 0.0 
 
-radius mean value:  4.0 
-standard deviation: 0.4
+radius mean value:  1.0 
+standard deviation: 0.15

@@ -28,7 +28,7 @@ The direction is uniformly distributed over the surface of a sphere, ensuring th
 
 ![Point cloud visualization](images/default.png)
 
-*Figure: Point cloud generated with the `input/default.txt` input file.*
+*Figure: Point cloud generated with the `input/default.txt` input file, visualized with the interactive viewer `images/plot_csv.html`.*
 
 ### Edge cases
 
@@ -38,15 +38,11 @@ The direction is uniformly distributed over the surface of a sphere, ensuring th
 
 ![Point cloud visualization](images/no_std.png)
 
-*Figure: Spherical shell generated with the `input/no_std.txt` input file.*
+*Figure: Spherical shell generated with the `input/no_std.txt` input file, visualized with the interactive viewer `images/plot_csv.html`.*
 
 ![Point cloud visualization](images/no_R.png)
 
-*Figure: Point cloud generated with the `input/no_R.txt` input file.*
-
-## Visualization
-
-The project provides an interactive viewer: [images/plot_csv.html](images/plot_csv.html)
+*Figure: Point cloud generated with the `input/no_R.txt` input file,, visualized with the interactive viewer `images/plot_csv.html`.*
 
 ## Features
 
