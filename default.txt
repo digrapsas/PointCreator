@@ -1,0 +1,9 @@
+number of threads: 1 
+number of points:  10000 
+
+center x-coordinate: 0.0 
+center y-coordinate: 0.0 
+center z-coordinate: 0.0 
+
+radius mean value:  4.0 
+standard deviation: 0.4

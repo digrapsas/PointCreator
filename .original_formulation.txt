@@ -1,0 +1,33 @@
+Please, write the program which generates random 3D points around some 3D center point.
+
+Each point is defined by:
+-- distance from the center
+-- direction from the center
+
+Distance from the center should be normally distributed value, with mean R_mean and standard
+deviation R_dev. If R_mean is set to 0 then points are 'clustered' around the center, if R_dev ==
+0, then all points are located on the sphere of R_mean radius from the center. R_mean and
+R_dev are not allowed to be 0 simultaneously.
+Direction from the center should be uniformly distributed value. That is, if R_dev == 0, then all
+points should be uniformly distributed on the surface of the sphere with radius R_mean.
+
+Program should:
+1. Parse command line parameters (see below);
+2. Generate points;
+3. Save all points in points.txt according to the following format:
+<x_1> <y_1> <z_1>
+<x_2> <y_2> <z_2>
+
+Note that coordinates are separated by spaces.
+Part 2 should be multithreaded using STL library.
+Also, part 2 should be timed, that is, you should measure and printout its execution time.
+
+The input parameters
+<number_of_threads> <number_of_points> <x_c> <y_c> <z_c> <R_mean> <R_dev>
+so
+sphere_points 1 1000 0.0 0.0 0.0 4.0 0.0
+should run on a single processor, create 1000 points uniformly distributed on the sphere with
+radius 4.0 and center in the coordinate origin.
+
+In this exercise the main objective is to write reasonably clear and efficient code with good level
+of comments. Ideally, the whole program should be put in a single file.

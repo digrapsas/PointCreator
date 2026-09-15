@@ -4,6 +4,12 @@ A multithreaded C++ program for generating random points in 3D around a user-def
 
 The distance of each point from the center follows a normal distribution, while the direction is uniformly distributed over the sphere. The point generation step is parallelized using the C++ Standard Library and its execution time is measured.
 
+## Background
+
+This project was initially developed as part of a technical interview exercise and was later revisited as a personal project to revisit the fundamentals and improve the overall implementation and usability.
+
+A version of the original exercise formulation can be found in `.original_formulation.txt`, which even though outdated, gives some hints about the initial direction of the project.
+
 ## Overview
 
 PointCreator generates a configurable number of random points around a 3D center point.
@@ -20,6 +26,28 @@ The radial distance follows a normal distribution:
 
 The direction is uniformly distributed over the surface of a sphere, ensuring that there is no preferred direction in 3D space. This makes it possible to generate both spherical shells and volumetric point clouds depending on the selected radial distribution.
 
+![Point cloud visualization](images/default.png)
+
+*Figure: Point cloud generated with the `input/default.txt` input file.*
+
+### Edge cases
+
+* `R_dev = 0`: points uniformly distributed on the surface of a sphere with radius `R_mean`
+* `R_mean = 0`: points are clustered around the center
+* `R_mean = 0` and `R_dev = 0` simultaneously is not allowed
+
+![Point cloud visualization](images/no_std.png)
+
+*Figure: Spherical shell generated with the `input/no_std.txt` input file.*
+
+![Point cloud visualization](images/no_R.png)
+
+*Figure: Point cloud generated with the `input/no_R.txt` input file.*
+
+## Visualization
+
+The project provides an interactive viewer: [images/plot_csv.html](images/plot_csv.html)
+
 ## Features
 
 * Random 3D point generation
@@ -30,12 +58,6 @@ The direction is uniformly distributed over the surface of a sphere, ensuring th
 * Execution-time measurement of the generation step
 * Text output compatible with the specification
 * Performance benchmarking and scalability analysis
-
-### Edge cases
-
-* `R_dev = 0`: points uniformly distributed on the surface of a sphere with radius `R_mean`;
-* `R_mean = 0`: points are clustered around the center;
-* `R_mean = 0` and `R_dev = 0` simultaneously is not allowed.
 
 ## Input
 
@@ -52,6 +74,8 @@ The program reads the parameters of the simulation from an input file, which sho
 | `R_dev`               | Standard deviation of the radial distance    |
 
 `R_mean` and `R_dev` cannot both be zero.
+
+A set of valid inputs can be found inside the `./input` directory.
 
 ### Example
 

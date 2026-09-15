@@ -22,8 +22,7 @@
 void PointCreation(unsigned iStart, unsigned iEnd, double x_c, double y_c, double z_c, 
                    std::vector<double> &x, std::vector<double> &y, std::vector<double> &z, double R_mean, double R_dev)
 {
-    long seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed + (long)(10*iStart)); // adding a different offset to the seed for each thread to avoid same random numbers in each thread
+    std::default_random_engine generator((long)(10*iStart)); // adding a different offset to the seed for each thread to avoid same random numbers in each thread
     std::normal_distribution<double> normal_coord(0.0, 0.1);
     std::normal_distribution<double> normal_distance(R_mean, R_dev);
 
@@ -215,14 +214,28 @@ class PointCreator
 
 int main(int argc, char* argv[]) 
 {
+    std::string filename;
+    if (argc == 1)
+    {
+        filename = "default";
+    }
+    else if (argc == 2)
+    {
+        filename = argv[1];
+        size_t pos0 = (filename.find_last_of("/") == std::string::npos) ? 0 : filename.find_last_of("/") + 1;
+        filename = filename.substr(pos0, filename.find_last_of(".") - pos0);
+    }
+    else
+    {
+        throw std::runtime_error("Error: Too many command line arguments.\nPlease provide only the input filename");
+    }
 
-    std::string filenames = (argc > 1) ? argv[1] : "default";
-    std::string inputFileName = "./input/" + filenames + ".txt";
+    std::string inputFileName = "./input/" + filename + ".txt";
     
     std::ifstream inStream(inputFileName);
     if(!inStream.fail()) 
     {
-        std::string outFilename = "./res/" + filenames + ".csv";
+        std::string outFilename = "./res/" + filename + ".csv";
         try
         {  
             PointCreator p = PointCreator(inStream, outFilename);
@@ -235,6 +248,6 @@ int main(int argc, char* argv[])
     }
     else
     {
-        std::cout << "Could not open input file" << std::endl;
+        std::cout << "Error: Could not open input file: \'" + inputFileName + "\'." << std::endl;
     }
 }
