@@ -126,9 +126,9 @@ where `T(N)` is the point-generation execution time using `N` threads.
 
 ### Benchmark results
 
-![Execution time](benchmark/execution_time.png)
+<img src="benchmark/execution_time.png" alt="Execution time" width="600">
 
-![Speedup](benchmark/speedup.png)
+<img src="benchmark/speedup.png" alt="Speedup" width="600">
 
 Benchmark configuration:
 
