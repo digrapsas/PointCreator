@@ -114,7 +114,7 @@ This design allows the computational workload to scale with the number of availa
 
 ## Performance
 
-The point-generation stage is timed independently from file output in order to measure the computational part of the program. Benchmarking is performed by keeping the problem size fixed and increasing the number of threads.
+The point-generation stage is timed independently in order to measure the computational part of the program. Benchmarking is performed by keeping the problem size fixed and increasing the number of threads.
 
 For a given number of threads `N`, speedup is measured relative to the single-threaded execution:
 
@@ -123,13 +123,12 @@ Speedup(N) = T(1) / T(N)
 ```
 
 where `T(N)` is the point-generation execution time using `N` threads.
-```
 
 ### Benchmark results
 
-[Insert execution-time graph here]
+![Execution time](benchmark/execution_time.png)
 
-[Insert speedup graph here]
+![Speedup](benchmark/speedup.png)
 
 Benchmark configuration:
 
@@ -159,32 +158,6 @@ cd PointCreator
 ```
 
 A Release build is recommended when measuring performance.
-
-## Project Structure
-
-```text
-.
-├── src/
-│   └── ...
-├── tests/
-│   └── ...
-├── benchmarks/
-│   └── ...
-├── examples/
-│   └── ...
-├── CMakeLists.txt
-└── README.md
-```
-
-## Testing
-
-The project includes tests covering:
-
-* command-line argument validation;
-* invalid parameter combinations;
-* point-generation edge cases;
-* output format;
-* statistical properties of generated points.
 
 ## Design Considerations
 

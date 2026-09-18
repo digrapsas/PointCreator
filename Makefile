@@ -3,10 +3,14 @@ all: main
 
 # compiler and flags
 CXX      = g++
-CXXFLAGS = -g -pthread -std=c++17 -pedantic -Wall -Wextra -Wshadow -Wconversion -Wunreachable-code
+CXXFLAGS = -pthread -std=c++17 -pedantic -Wall -Wextra -Wshadow -Wconversion -Wunreachable-code
+OPTFLAGS = -O3 -DNDEBUG -march=native
 COMPILE  = $(CXX) $(CXXFLAGS)
 
-debug: CXXFLAGS += -DDEBUG -g
+release: CXXFLAGS += $(OPTFLAGS)
+release: main
+
+debug: CXXFLAGS += -g -DDEBUG
 debug: main
 
 # directories
