@@ -24,7 +24,7 @@ The radial distance follows a normal distribution:
 * `R_mean` defines the mean distance from the center;
 * `R_dev` defines the standard deviation.
 
-The direction is uniformly distributed over the surface of a sphere, ensuring that there is no preferred direction in 3D space. This makes it possible to generate both spherical shells and volumetric point clouds depending on the selected radial distribution.
+The direction is uniformly distributed over the surface of a sphere, ensuring that there is no preferred direction in 3D space. This makes it possible to generate different types of 3D point distributions, from spherical shells to more dispersed point clouds, depending on the chosen radial distribution.
 ![Point cloud visualization](images/default.png)
 
 *Figure: Point cloud generated with the `input/default.txt` input file, visualized with the interactive viewer `images/plot_csv.html`.*
@@ -63,10 +63,10 @@ The program reads the parameters of the simulation from an input file, which sho
 | `center x-coordinate` | x coordinate of the center                   |
 | `center y-coordinate` | y coordinate of the center                   |
 | `center z-cooridnate` | z coordinate of the center                   |
-| `R_mean`              | Mean radial distance                         |
-| `R_dev`               | Standard deviation of the radial distance    |
+| `radius mean value`   | Mean radial distance                         |
+| `standard deviation`  | Standard deviation of the radial distance    |
 
-`R_mean` and `R_dev` cannot both be zero.
+`radius mean value` and `standard deviation` cannot both be zero.
 
 A set of valid inputs can be found inside the `./input` directory.
 
@@ -102,6 +102,20 @@ The resulting Cartesian coordinates are obtained by combining the sampled radius
 
 The point-generation stage is divided between multiple worker threads. Each thread generates an independent subset of the requested points.
 
+## Build and execution
+
+```bash
+git clone <repository-url>
+cd PointCreator
+
+# Build instructions:
+make release 
+make debug
+
+# Execution:
+./build/pc.out input/default.txt
+```
+
 ## Multithreading
 
 Point generation is parallelized using the C++ Standard Library threading facilities.
@@ -110,7 +124,7 @@ The workload is divided between the requested number of threads, with each threa
 
 Random-number generation is kept thread-local to avoid unnecessary synchronization between worker threads.
 
-This design allows the computational workload to scale with the number of available CPU cores while avoiding a shared random-number generator.
+This design allows the computational workload to scale across multiple CPU cores while avoiding a shared random-number generator..
 
 ## Performance
 
@@ -124,7 +138,27 @@ Speedup(N) = T(1) / T(N)
 
 where `T(N)` is the point-generation execution time using `N` threads.
 
-### Benchmark results
+## Benchmarking
+
+Benchmarking is automated using a Python script that:
+
+* generates benchmark input files for different thread counts;
+* executes the C++ program repeatedly;
+* extracts the measured execution time;
+* computes median execution times and speedups;
+* generates the execution-time and speedup plots.
+
+The benchmark scripts are intended as measurement tooling; the point-generation implementation itself is entirely C++.
+
+To run the benchmark:
+
+```bash
+python3 scripts/benchmark.py
+```
+
+Results will be available in `benchmark` directory.
+
+## Benchmark results
 
 <img src="benchmark/execution_time.png" alt="Execution time" width="600">
 
@@ -132,32 +166,13 @@ where `T(N)` is the point-generation execution time using `N` threads.
 
 Benchmark configuration:
 
-* CPU: ...
-* Compiler: ...
-* Compiler version: ...
+* CPU: Intel Core i7-7Y75 (2 physical cores, 4 logical CPUs)
+* Compiler: GCC
+* Compiler version: 11.4.0
 * Build type: Release
-* Number of generated points: ...
-* Operating system: ...
-
-## Example Output
-
-### Generated point cloud
-
-[Insert 3D visualization here]
-
-The visualization shows an example of the generated point distribution for a selected center, mean radius and standard deviation.
-
-## Build
-
-```bash
-git clone <repository-url>
-cd PointCreator
-
-# Build instructions
-...
-```
-
-A Release build is recommended when measuring performance.
+* Compiler flags: -O3 -DNDEBUG -march=native -pthread
+* Number of generated points: 5,000,000
+* Operating system: Ubuntu 22.04.5 LTS
 
 ## Design Considerations
 
