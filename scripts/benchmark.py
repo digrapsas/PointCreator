@@ -21,10 +21,10 @@ RESULTS_DIR = Path("benchmark")
 RESULTS_FILE = RESULTS_DIR / "benchmark_results.csv"
 
 THREAD_COUNTS = [1, 2, 3, 4, 6, 8, 16]
-NUM_RUNS = 200
-PAUSE_SECONDS = 0.25
+NUM_RUNS = 20
+PAUSE_SECONDS = 0
 
-NUM_POINTS = 5000000
+NUM_POINTS = 10000000
 
 CENTER_X = 0.0
 CENTER_Y = 0.0
@@ -93,7 +93,9 @@ def benchmark(num_threads: int, pause_seconds: float = PAUSE_SECONDS) -> list[fl
     times = []
 
     for run in range(1, NUM_RUNS + 1):
-        # time.sleep(pause_seconds)
+        if pause_seconds > 0:
+            print(f"  ...cooling for {pause_seconds} seconds...")
+            time.sleep(pause_seconds)
         elapsed_ms = run_program(input_file)
         times.append(elapsed_ms)
 

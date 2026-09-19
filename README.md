@@ -32,7 +32,7 @@ The direction is uniformly distributed over the surface of a sphere, ensuring th
 ### Edge cases
 
 * `R_dev = 0`: points uniformly distributed on the surface of a sphere with radius `R_mean`
-* `R_mean = 0`: points are clustered around the center
+* `R_mean = 0`: points are distributed around the center according to the specified radial standard deviation
 * `R_mean = 0` and `R_dev = 0` simultaneously is not allowed
 ![Point cloud visualization](images/no_std.png)
 
@@ -62,7 +62,7 @@ The program reads the parameters of the simulation from an input file, which sho
 | `number of points`    | Number of points to generate                 |
 | `center x-coordinate` | x coordinate of the center                   |
 | `center y-coordinate` | y coordinate of the center                   |
-| `center z-cooridnate` | z coordinate of the center                   |
+| `center z-coordinate` | z coordinate of the center                   |
 | `radius mean value`   | Mean radial distance                         |
 | `standard deviation`  | Standard deviation of the radial distance    |
 
@@ -82,11 +82,14 @@ center x-coordinate: 0.0
 center y-coordinate: 0.0 
 center z-coordinate: 0.0 
 
-radius mean value:  4.0 
-standard deviation: 0.4
+radius mean value:  1.0 
+standard deviation: 0.15
 ```
 
-The program creates 10000 points uniformly distributed on a sphere of radius 4 centered at the origin and standard deviation 0.4, using a single thread. The output is written in `res/default.csv`, using the following format:
+The program generates 10,000 points centered around the origin. Their radial distances follow a normal distribution with a mean of 1.0 and a standard deviation of 0.15. 
+The directions are uniformly distributed over the sphere, using a single thread.
+
+The output is written in `res/default.csv`, using the following format:
 
 ```text
 <x_1>, <y_1>, <z_1>
@@ -121,15 +124,45 @@ make debug
 Point generation is parallelized using the C++ Standard Library threading facilities.
 
 The workload is divided between the requested number of threads, with each thread responsible for generating its own portion of the point cloud.
-
 Random-number generation is kept thread-local to avoid unnecessary synchronization between worker threads.
+This design allows the computational workload to scale across multiple CPU cores while avoiding a shared random-number generator.
 
-This design allows the computational workload to scale across multiple CPU cores while avoiding a shared random-number generator..
+The point-generation stage is timed independently in order to measure how it scales with the increasing number of threads.
 
-## Performance
+## Benchmarking
 
-The point-generation stage is timed independently in order to measure the computational part of the program. Benchmarking is performed by keeping the problem size fixed and increasing the number of threads.
+Benchmarking is performed by keeping the problem size fixed and increasing the number of threads.
+The procedure is automated using a Python script that:
 
+* generates benchmark input files for different thread counts;
+* executes the C++ program repeatedly;
+* extracts the measured execution time;
+* computes median execution times and speedups;
+* generates the execution-time and speedup plots.
+
+To run the benchmark:
+
+```bash
+python3 scripts/benchmark.py
+```
+
+Results are written in `benchmark` directory.
+
+### Benchmark configuration
+
+* CPU: Intel Core i7-7Y75 (2 physical cores, 4 logical CPUs)
+* Operating system: Ubuntu 22.04.5 LTS
+* Compiler: GCC
+* Compiler version: 11.4.0
+* Build type: Release
+* Compiler flags: `-O3 -DNDEBUG -march=native -pthread`
+* Number of generated points: 10,000,000
+* 20 runs per thread configuration
+* Reported values are medians
+
+### Benchmark results
+
+The figures below show the influence of the number of threads on the execution time and the speedup.
 For a given number of threads `N`, speedup is measured relative to the single-threaded execution:
 
 ```text
@@ -138,41 +171,15 @@ Speedup(N) = T(1) / T(N)
 
 where `T(N)` is the point-generation execution time using `N` threads.
 
-## Benchmarking
-
-Benchmarking is automated using a Python script that:
-
-* generates benchmark input files for different thread counts;
-* executes the C++ program repeatedly;
-* extracts the measured execution time;
-* computes median execution times and speedups;
-* generates the execution-time and speedup plots.
-
-The benchmark scripts are intended as measurement tooling; the point-generation implementation itself is entirely C++.
-
-To run the benchmark:
-
-```bash
-python3 scripts/benchmark.py
-```
-
-Results will be available in `benchmark` directory.
-
-## Benchmark results
-
 <img src="benchmark/execution_time.png" alt="Execution time" width="600">
 
 <img src="benchmark/speedup.png" alt="Speedup" width="600">
 
-Benchmark configuration:
+The results show a clear improvement as the number of threads increases up to 4 threads, followed by a performance plateau. 
+The processor provides 2 physical cores and 4 logical CPUs, so increasing the number of software threads beyond 4 results in oversubscription rather than additional logical CPUs.
 
-* CPU: Intel Core i7-7Y75 (2 physical cores, 4 logical CPUs)
-* Compiler: GCC
-* Compiler version: 11.4.0
-* Build type: Release
-* Compiler flags: -O3 -DNDEBUG -march=native -pthread
-* Number of generated points: 5,000,000
-* Operating system: Ubuntu 22.04.5 LTS
+The benchmark protocol included a cooldown period between runs to reduce the impact of CPU thermal and frequency variations. 
+This was found to be important on this low-power mobile processor and resulted in substantially more reproducible measurements.
 
 ## Design Considerations
 
